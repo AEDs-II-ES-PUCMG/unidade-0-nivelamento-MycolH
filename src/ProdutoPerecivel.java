@@ -1,42 +1,45 @@
-import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import java.util.Date;
 
-public class ProdutoPerecivel extends Produto{
+public class ProdutoPerecivel extends Produto {
 
-	private static final double DESCONTO = 0.25;
-    // Prazo, em dias, para coonceder o desconto por pro
-	private static final int PRAZO_DESCONTO = 7;
-    private LocalDate dataValidade;
-
-    public ProdutoPerecivel (String desc, double precoCusto, double margemLucro, LocalDate validade){
-        super(desc, precoCusto,margemLucro);
-        if (validade.isBefore(LocalDate.now())){
+    // Desconto para proximidade de validade: 25%
+    private static final double DESCONTO = 0.25;
+    //  Prazo, em dias, para conceder o desconto por proximidade da vallidade
+    private static final int PRAZO_DESCONTO = 7;
+    //  Data de validade do produto. Não pode ser anterior a data de criação ou venda
+    private LocalDate dataDeValidade;
+     
+    /** Construtor completo... */
+    public ProdutoPerecivel(String desc, double precoCusto, double margemLucro, LocalDate validade) {
+        super(desc, precoCusto, margemLucro);
+        if (validade.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("O produto está vencido!");
         }
-        dataValidade = validade;
+        dataDeValidade = validade;
     }
-
-    /** Retorna o valor de venda do produto, considerando seu preço de custo, margem de lucro e...*/
+    
+    // Retorna o valor de venda do produto, considerando seu preço de custo, margem de lucro e...
     @Override
-    public double valorVenda(){
+    public double valorVenda() {
         double desconto = 0d;
-        int diasValidade = LocalDate.now().until(dataValidade).getDays(); 
-        if (diasValidade <= 7) {
+        int diasValidade = LocalDate.now().until(dataDeValidade).getDays();
+        if (diasValidade <= PRAZO_DESCONTO) {
             desconto = DESCONTO;
         }
-        return (precoCusto * (1 - margemLucro)) * (1 - desconto);
-    }
+        return precoCusto * (1 + margemLucro) * (1 - desconto);
 
-    // Descrição em string do produto, contendo sua descrição, o valor de venda e data de validade...*/
+    }
+    
+    // Descrição em string do produto, contendo sua descrição, o valor de venda e data de validade...
     @Override
-    public String toString(){
+    public String toString() {
+
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        
+
         String dados = super.toString();
-        dados += "\nVálido até " + formato.format(dataValidade);
+        dados += "\nVálido até " + formato.format(dataDeValidade);
         return dados;
     }
 }
