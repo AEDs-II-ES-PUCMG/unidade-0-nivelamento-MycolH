@@ -47,7 +47,7 @@ public class ProdutoPerecivel extends Produto {
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String precoFormatado = String.format("%.2f", precoCusto).replace(",",".");
         String margemFormatada = String.format(".2f", margemLucro).replace(",", ".");
-    )   String dataFormatada = formato.format(dataDeValidade);
-        return String.format("2;%s;%s:%s;%s", descricao, precoFormatado, margemFormatada, dataDeValidade);
+        String dataFormatada = formato.format(dataDeValidade);
+        return String.format("2;%s;%s:%s;%s", descricao, precoFormatado, margemFormatada, dataFormatada);
     }
 }

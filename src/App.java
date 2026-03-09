@@ -58,7 +58,6 @@ public class App {
      * @return Um vetor com os produtos carregados, ou vazio em caso de problemas de leitura.
      */
     static Produto[] lerProdutos(String nomeArquivoDados) {
-
 		Scanner arquivo = null;
 		int i, numProdutos;
 		String linha;
@@ -74,13 +73,12 @@ public class App {
 				produtosCadastrados[i] = produto;
 			}
 			quantosProdutos = i;
-		} catch ((IOException execacaoArquivo) {
+		} catch (IOException execacaoArquivo) {
 			produtosCadastrados = null;
 		} finally {
 			arquivo.close();
 		}
 		return produtosCadastrados;
-
     }
 
     /** Lista todos os produtos cadastrados, numerados, um por linha */
@@ -100,7 +98,7 @@ public class App {
 		String descricao;
 		ProdutoNaoPerecivel produtoALocalizar;
 		Produto produto = null;
-		Boolean  localizar = false~;
+		Boolean  localizado = false;
 
 		cabecalho();
 		System.out.println("Informe a descrição do produto desejado");
@@ -109,10 +107,14 @@ public class App {
 		for (int i = 0; (i< quantosProdutos && !localizado); i++){
 			if(produtosCadastrados[i].equals(produtoALocalizar)){
 				localizado = true;
-				produto = produtosCadastrados;
+				produto = produtosCadastrados[i];
 			}
 		}
-
+        if (!localizado) {
+            System.out.println("Produto não localizado!");
+        } else {
+            System.out.println(produto.toString());
+        }
     }
 
     /**
@@ -122,7 +124,49 @@ public class App {
      * Uma sugestão de melhoria mais significativa poderia ser o uso de padrão Factory Method para criação dos objetos.
      */
     static void cadastrarProduto(){
-        //TO DO
+        cabecalho();
+        Produto produto = null;
+
+        try {
+            System.out.println("\nO produto que você deseja cadastrar é:");
+            System.out.println("1 - Não Perecível");
+            System.out.println("2 - Perecível");
+            int tipo = Integer.parseInt(teclado.nextLine());
+
+            System.out.println("Qual o nome do produto?");
+            String nome = teclado.nextLine();
+
+            System.out.println("Qual o preço de custo do produto?");
+            double preco = Double.parseDouble(teclado.nextLine());
+
+            System.out.println("Qual a margem de lucro do produto?");
+            double margem = Double.parseDouble(teclado.nextLine());
+
+            if (tipo == 1) {
+                // cria produto não perecível
+                produto = new ProdutoNaoPerecivel(nome, preco, margem);
+            } else if (tipo == 2) {
+                // cria produto perecível
+                System.out.println("Qual a data de validade? (dd/MM/yyyy)");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate data = LocalDate.parse(teclado.nextLine(), formatter);
+                produto = new ProdutoPerecivel(nome, preco, margem, data);
+            } else {
+                System.out.println("Tipo inválido! Escolha 1 ou 2.");
+                return;
+            }
+
+            // adiciona ao vetor
+            if (quantosProdutos < produtosCadastrados.length) {
+                produtosCadastrados[quantosProdutos] = produto;
+                quantosProdutos++;
+                System.out.println("Produto cadastrado com sucesso!");
+            } else {
+                System.out.println("Não há espaço para novos produtos.");
+            }
+        } catch (Exception e) {
+            System.out.println("Erro ao cadastrar produto: " + e.getMessage());
+        }
     }
 
     /**
@@ -134,8 +178,17 @@ public class App {
 		
 		try {
 			arquivo = new FileWriter((nomeArquivo), Charset.forName("UTF-8"));
-			 
-		}
+            
+			arquivo.append(quantosProdutos + "\n");
+
+            for (int i = 0; i < quantosProdutos; i++) {
+                arquivo.append(produtosCadastrados[i].gerarDadosTexto() + "\n");
+            }
+            arquivo.close();
+            System.out.println("Arquivo " + nomeArquivo + " salvo com sucesso!");
+		} catch (IOException exececao) {
+            System.out.println("Problemas no arquivo " + nomeArquivo + ". Tente novamente!");
+        }
     }
 
     public static void main(String[] args) throws Exception {
